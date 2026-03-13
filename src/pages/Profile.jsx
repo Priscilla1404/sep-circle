@@ -10,6 +10,7 @@ export default function Profile() {
   const [newPhotoCaption, setNewPhotoCaption] = useState('');
   const [photoPreview, setPhotoPreview] = useState(null);
   const photoInputRef = useRef(null);
+  const avatarInputRef = useRef(null);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
 
@@ -39,6 +40,13 @@ export default function Profile() {
     setEditing(false);
   };
 
+  const handleAvatarFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const dataUrl = await fileToDataUrl(file);
+    s.updateProfile(userId, { avatar: dataUrl });
+  };
+
   const handlePhotoFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -66,7 +74,15 @@ export default function Profile() {
     <div className="profile-page">
       {/* Profile Header */}
       <div className="profile-header">
-        <img src={user.avatar} alt="" className="profile-avatar" />
+        <div className="profile-avatar-wrap">
+          <img src={user.avatar} alt="" className="profile-avatar" />
+          {isMe && (
+            <label className="avatar-upload-label" title="Change profile picture">
+              <input type="file" accept="image/*" onChange={handleAvatarFile} ref={avatarInputRef} className="file-input-hidden" />
+              <span className="avatar-upload-icon">📷</span>
+            </label>
+          )}
+        </div>
         {editing ? (
           <form className="profile-edit-form" onSubmit={handleSaveProfile}>
             <input type="text" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} placeholder="Full name" className="edit-input" />

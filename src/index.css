@@ -921,7 +921,33 @@ a { color: var(--navy); text-decoration: none; }
   border-bottom: 1px solid var(--border);
 }
 
-.profile-avatar { width: 100px; height: 100px; border-radius: 50%; flex-shrink: 0; box-shadow: var(--shadow); }
+.profile-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+}
+
+.profile-avatar { width: 100px; height: 100px; border-radius: 50%; flex-shrink: 0; box-shadow: var(--shadow); object-fit: cover; }
+
+.avatar-upload-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--navy);
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.avatar-upload-label:hover { background: var(--navy-light); }
+
+.avatar-upload-icon { font-size: 14px; line-height: 1; }
 .profile-name { font-size: 28px; font-weight: 700; color: var(--navy-dark); margin-bottom: 4px; }
 .profile-title { font-size: 15px; color: var(--text); margin-bottom: 4px; }
 .profile-location { font-size: 14px; color: var(--gold); margin-bottom: 4px; }
