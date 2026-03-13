@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useStore } from '../lib/useStore';
+import { fileToDataUrl } from '../lib/imageUtils';
 
 function BookCard({ book, users, currentUser, store: s }) {
   const [showComments, setShowComments] = useState(false);
@@ -78,6 +79,16 @@ export default function Books() {
   const { data, currentUser, store: s } = useStore();
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState({ title: '', author: '', coverUrl: '', reason: '' });
+  const [coverPreview, setCoverPreview] = useState(null);
+  const coverInputRef = useRef(null);
+
+  const handleCoverFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const dataUrl = await fileToDataUrl(file);
+    setForm({ ...form, coverUrl: dataUrl });
+    setCoverPreview(dataUrl);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -90,6 +101,8 @@ export default function Books() {
       comments: [],
     });
     setForm({ title: '', author: '', coverUrl: '', reason: '' });
+    setCoverPreview(null);
+    if (coverInputRef.current) coverInputRef.current.value = '';
     setShowNew(false);
   };
 
@@ -109,7 +122,11 @@ export default function Books() {
         <form className="new-book-form" onSubmit={handleSubmit}>
           <input type="text" placeholder="Book title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
           <input type="text" placeholder="Author" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} required />
-          <input type="url" placeholder="Cover image URL" value={form.coverUrl} onChange={e => setForm({ ...form, coverUrl: e.target.value })} />
+          <label className="file-upload-label">
+            <input type="file" accept="image/*" onChange={handleCoverFile} ref={coverInputRef} className="file-input-hidden" />
+            <span className="file-upload-btn">Upload book cover photo (optional)</span>
+          </label>
+          {coverPreview && <img src={coverPreview} alt="Cover preview" className="cover-preview" />}
           <textarea placeholder="Why do you recommend this book?" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} required maxLength={300} />
           <button type="submit" className="btn-primary">Share Recommendation</button>
         </form>

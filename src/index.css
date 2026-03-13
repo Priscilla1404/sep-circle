@@ -1349,6 +1349,47 @@ a { color: var(--navy); text-decoration: none; }
   .event-actions { flex-direction: row; }
 }
 
+/* ===== FILE UPLOAD ===== */
+.file-input-hidden { display: none; }
+
+.file-upload-label { cursor: pointer; }
+
+.file-upload-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--warm-gray);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--navy);
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+  transition: all 0.2s;
+}
+.file-upload-btn:hover { border-color: var(--gold); background: var(--white); }
+
+.upload-preview {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.upload-preview-small {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.cover-preview {
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
 /* ===== UTILITIES ===== */
 .empty-state { color: var(--text-light); font-size: 14px; text-align: center; padding: 24px; }
 .page-center { display: flex; align-items: center; justify-content: center; min-height: 200px; }

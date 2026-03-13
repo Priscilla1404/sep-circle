@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useStore } from '../lib/useStore';
+import { fileToDataUrl } from '../lib/imageUtils';
 
 function shuffleArray(arr) {
   const shuffled = [...arr];
@@ -97,6 +98,8 @@ export default function PostcardWall() {
   const [showNew, setShowNew] = useState(false);
   const [newCaption, setNewCaption] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const spotlight = useMemo(() => getWeeklySpotlight(data.postcards), []);
   const shuffled = useMemo(() => {
@@ -113,13 +116,21 @@ export default function PostcardWall() {
 
   const canPost = userPostsThisWeek < 3;
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const dataUrl = await fileToDataUrl(file);
+    setNewImageUrl(dataUrl);
+    setImagePreview(dataUrl);
+  };
+
   const handleNewPostcard = (e) => {
     e.preventDefault();
-    if (!newCaption.trim() || !newImageUrl.trim()) return;
+    if (!newCaption.trim() || !newImageUrl) return;
     s.addPostcard({
       id: Date.now().toString(),
       userId: currentUser.id,
-      imageUrl: newImageUrl.trim(),
+      imageUrl: newImageUrl,
       caption: newCaption.trim(),
       city: currentUser.city,
       country: currentUser.country,
@@ -128,7 +139,9 @@ export default function PostcardWall() {
     });
     setNewCaption('');
     setNewImageUrl('');
+    setImagePreview(null);
     setShowNew(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -150,13 +163,18 @@ export default function PostcardWall() {
 
       {showNew && (
         <form className="new-postcard-form" onSubmit={handleNewPostcard}>
-          <input
-            type="url"
-            placeholder="Image URL"
-            value={newImageUrl}
-            onChange={e => setNewImageUrl(e.target.value)}
-            required
-          />
+          <label className="file-upload-label">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              className="file-input-hidden"
+              required={!newImageUrl}
+            />
+            <span className="file-upload-btn">Choose a photo from your device</span>
+          </label>
+          {imagePreview && <img src={imagePreview} alt="Preview" className="upload-preview" />}
           <input
             type="text"
             placeholder="Write a caption (max 150 chars)"
@@ -166,7 +184,7 @@ export default function PostcardWall() {
             required
           />
           <p className="form-note">Stamped from: {currentUser.city}, {currentUser.country}</p>
-          <button type="submit" className="btn-primary">Post Postcard</button>
+          <button type="submit" className="btn-primary" disabled={!newImageUrl}>Post Postcard</button>
         </form>
       )}
 

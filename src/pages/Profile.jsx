@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, NavLink } from 'react-router-dom';
 import { useStore } from '../lib/useStore';
+import { fileToDataUrl } from '../lib/imageUtils';
 
 export default function Profile() {
   const { userId } = useParams();
   const { data, currentUser, store: s } = useStore();
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [newPhotoCaption, setNewPhotoCaption] = useState('');
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const photoInputRef = useRef(null);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
 
@@ -36,17 +39,27 @@ export default function Profile() {
     setEditing(false);
   };
 
+  const handlePhotoFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const dataUrl = await fileToDataUrl(file);
+    setNewPhotoUrl(dataUrl);
+    setPhotoPreview(dataUrl);
+  };
+
   const handleAddPhoto = (e) => {
     e.preventDefault();
-    if (!newPhotoUrl.trim()) return;
+    if (!newPhotoUrl) return;
     s.addAlbumPhoto(userId, {
       id: Date.now().toString(),
-      url: newPhotoUrl.trim(),
+      url: newPhotoUrl,
       caption: newPhotoCaption.trim(),
       date: new Date().toISOString().split('T')[0],
     });
     setNewPhotoUrl('');
     setNewPhotoCaption('');
+    setPhotoPreview(null);
+    if (photoInputRef.current) photoInputRef.current.value = '';
   };
 
   return (
@@ -93,9 +106,13 @@ export default function Profile() {
 
         {isMe && (
           <form className="add-photo-form" onSubmit={handleAddPhoto}>
-            <input type="url" placeholder="Photo URL" value={newPhotoUrl} onChange={e => setNewPhotoUrl(e.target.value)} required />
+            <label className="file-upload-label">
+              <input type="file" accept="image/*" onChange={handlePhotoFile} ref={photoInputRef} className="file-input-hidden" />
+              <span className="file-upload-btn">Choose photo</span>
+            </label>
+            {photoPreview && <img src={photoPreview} alt="Preview" className="upload-preview-small" />}
             <input type="text" placeholder="Caption (optional)" value={newPhotoCaption} onChange={e => setNewPhotoCaption(e.target.value)} />
-            <button type="submit" className="btn-primary btn-sm">Add Photo</button>
+            <button type="submit" className="btn-primary btn-sm" disabled={!newPhotoUrl}>Add Photo</button>
           </form>
         )}
 
