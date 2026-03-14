@@ -91,7 +91,7 @@ export default function Messages() {
   };
 
   return (
-    <div className="messages-page">
+    <div className={`messages-page ${active ? 'has-active-conv' : ''}`}>
       <div className="messages-sidebar">
         <div className="messages-sidebar-header">
           <h2>Messages</h2>
@@ -169,7 +169,10 @@ export default function Messages() {
         ) : (
           <>
             <div className="messages-header">
-              <h3>{getConvName(active)}</h3>
+              <h3>
+                <button className="mobile-back-btn" onClick={() => setActiveConv(null)}>← </button>
+                {getConvName(active)}
+              </h3>
               {active.isGroup && (
                 <span className="group-members">
                   {active.participants.map(id => data.users.find(u => u.id === id)?.name?.split(' ')[0]).join(', ')}
