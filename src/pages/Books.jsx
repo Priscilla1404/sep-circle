@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 import { fileToDataUrl } from '../lib/imageUtils';
 
 function BookCard({ book, users, currentUser, store: s }) {
@@ -98,7 +98,7 @@ function BookCard({ book, users, currentUser, store: s }) {
 }
 
 export default function Books() {
-  const { data, currentUser, store: s } = useStore();
+  const { data, currentUser, store: s } = useAppStore();
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState({ title: '', author: '', coverUrl: '', reason: '' });
   const [coverPreview, setCoverPreview] = useState(null);

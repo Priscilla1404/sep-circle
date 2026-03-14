@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 
 export default function Login() {
-  const { store: s } = useStore();
+  const { store: s } = useAppStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const result = s.loginWithEmail(email, password);
+    const result = await s.loginWithEmail(email, password);
     if (!result.success) {
       setError(result.error);
     }

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 
 export default function Messages() {
-  const { data, currentUser, store: s } = useStore();
+  const { data, currentUser, store: s } = useAppStore();
   const [activeConv, setActiveConv] = useState(null);
   const [newMsg, setNewMsg] = useState('');
   const [showNewConv, setShowNewConv] = useState(false);

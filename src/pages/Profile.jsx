@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, NavLink } from 'react-router-dom';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 import { fileToDataUrl } from '../lib/imageUtils';
 
 function AlbumPhotoCard({ photo, isMe, userId, store: s }) {
@@ -40,7 +40,8 @@ function AlbumPhotoCard({ photo, isMe, userId, store: s }) {
 
 export default function Profile() {
   const { userId } = useParams();
-  const { data, currentUser, store: s } = useStore();
+  const storeData = useAppStore();
+  const { data, currentUser, store: s } = storeData;
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [newPhotoCaption, setNewPhotoCaption] = useState('');
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -48,6 +49,11 @@ export default function Profile() {
   const avatarInputRef = useRef(null);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
+
+  // Load album photos for this user (Supabase)
+  useEffect(() => {
+    if (storeData.loadAlbumPhotos) storeData.loadAlbumPhotos(userId);
+  }, [userId]);
 
   const user = data.users.find(u => u.id === userId);
   if (!user) return <div className="page-center"><p>User not found.</p></div>;

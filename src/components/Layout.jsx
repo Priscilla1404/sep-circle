@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 
 const navItems = [
   { to: '/', label: 'Postcards', icon: '✉' },
@@ -11,7 +11,7 @@ const navItems = [
 ];
 
 export default function Layout() {
-  const { currentUser, store: s } = useStore();
+  const { currentUser, store: s } = useAppStore();
 
   return (
     <div className="app-container">

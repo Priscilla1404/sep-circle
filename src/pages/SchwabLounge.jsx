@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 
 export default function SchwabLounge() {
-  const { data, currentUser, store: s } = useStore();
+  const { data, currentUser, store: s } = useAppStore();
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -47,19 +47,24 @@ export default function SchwabLounge() {
   };
 
   const toggleAttendance = (eventId) => {
-    s.update(d => ({
-      ...d,
-      loungeEvents: d.loungeEvents.map(e => {
-        if (e.id !== eventId) return e;
-        const attending = e.attendees.includes(currentUser.id);
-        return {
-          ...e,
-          attendees: attending
-            ? e.attendees.filter(id => id !== currentUser.id)
-            : [...e.attendees, currentUser.id],
-        };
-      }),
-    }));
+    if (s.toggleEventAttendance) {
+      s.toggleEventAttendance(eventId, currentUser.id);
+    } else {
+      // localStorage fallback
+      s.update(d => ({
+        ...d,
+        loungeEvents: d.loungeEvents.map(e => {
+          if (e.id !== eventId) return e;
+          const attending = e.attendees.includes(currentUser.id);
+          return {
+            ...e,
+            attendees: attending
+              ? e.attendees.filter(id => id !== currentUser.id)
+              : [...e.attendees, currentUser.id],
+          };
+        }),
+      }));
+    }
   };
 
   const formatDateTime = (date, time) => {

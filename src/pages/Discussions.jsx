@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 
 const CATEGORIES = ['General', 'Business', 'Travel', 'Life'];
 
@@ -91,7 +91,7 @@ function DiscussionThread({ discussion, users, currentUser, store: s }) {
 }
 
 export default function Discussions() {
-  const { data, currentUser, store: s } = useStore();
+  const { data, currentUser, store: s } = useAppStore();
   const [filter, setFilter] = useState('All');
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState({ title: '', category: 'General' });

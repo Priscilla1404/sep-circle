@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 
 export default function NearMe() {
-  const { data, currentUser, store: s } = useStore();
+  const { data, currentUser, store: s } = useAppStore();
   const [searchCity, setSearchCity] = useState('');
   const [editingLocation, setEditingLocation] = useState(false);
   const [newCity, setNewCity] = useState(currentUser.city);

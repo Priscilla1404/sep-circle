@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
-import { useStore } from '../lib/useStore';
+import { useAppStore } from '../App';
 import { fileToDataUrl } from '../lib/imageUtils';
 
 function shuffleArray(arr) {
@@ -119,7 +119,7 @@ function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDel
 }
 
 export default function PostcardWall() {
-  const { data, currentUser, store: s } = useStore();
+  const { data, currentUser, store: s } = useAppStore();
   const [showNew, setShowNew] = useState(false);
   const [newCaption, setNewCaption] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
