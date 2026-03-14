@@ -20,13 +20,22 @@ function loadData() {
   return null;
 }
 
-function saveData(data) {
+function saveData(newData) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const serialized = JSON.stringify(newData);
+    localStorage.setItem(STORAGE_KEY, serialized);
   } catch (e) {
-    console.warn('Storage full — could not save. Consider clearing old data.');
+    // Storage is actually full — revert to last known good state
+    console.warn('Storage full:', e);
     alert('Storage is full. Try removing some photos before adding new ones.');
+    // Reload last saved data
+    try {
+      const fallback = localStorage.getItem(STORAGE_KEY);
+      if (fallback) data = JSON.parse(fallback);
+    } catch (_) {}
+    return false;
   }
+  return true;
 }
 
 function getInitialData() {
