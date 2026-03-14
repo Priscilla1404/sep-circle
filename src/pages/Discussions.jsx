@@ -6,7 +6,17 @@ const CATEGORIES = ['General', 'Business', 'Travel', 'Life'];
 function DiscussionThread({ discussion, users, currentUser, store: s }) {
   const [expanded, setExpanded] = useState(false);
   const [newReply, setNewReply] = useState('');
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState(discussion.title);
   const author = users.find(u => u.id === discussion.userId);
+  const isMine = discussion.userId === currentUser.id;
+
+  const handleSaveTitle = () => {
+    if (editTitle.trim()) {
+      s.updateDiscussion(discussion.id, { title: editTitle.trim() });
+    }
+    setEditingTitle(false);
+  };
 
   const handleReply = (e) => {
     e.preventDefault();
@@ -22,14 +32,28 @@ function DiscussionThread({ discussion, users, currentUser, store: s }) {
 
   return (
     <div className="discussion-card">
-      <div className="discussion-header" onClick={() => setExpanded(!expanded)}>
+      <div className="discussion-header" onClick={() => !editingTitle && setExpanded(!expanded)}>
         <span className={`category-tag ${discussion.category.toLowerCase()}`}>{discussion.category}</span>
-        <h3 className="discussion-title">{discussion.title}</h3>
+        {editingTitle ? (
+          <div className="inline-edit" onClick={e => e.stopPropagation()}>
+            <input type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} className="inline-edit-input" autoFocus />
+            <button onClick={handleSaveTitle} className="inline-edit-save">Save</button>
+            <button onClick={() => setEditingTitle(false)} className="inline-edit-cancel">Cancel</button>
+          </div>
+        ) : (
+          <h3 className="discussion-title">{discussion.title}</h3>
+        )}
         <div className="discussion-meta">
           <img src={author?.avatar} alt="" className="discussion-author-avatar" />
           <span>{author?.name?.split(' ')[0]}</span>
           <span className="discussion-date">{new Date(discussion.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
           <span className="reply-count">{discussion.replies.length} replies</span>
+          {isMine && !editingTitle && (
+            <>
+              <button className="owner-btn-inline" onClick={e => { e.stopPropagation(); setEditingTitle(true); }}>Edit</button>
+              <button className="owner-btn-inline danger" onClick={e => { e.stopPropagation(); if (confirm('Delete this thread?')) s.deleteDiscussion(discussion.id); }}>Delete</button>
+            </>
+          )}
         </div>
       </div>
       {expanded && (

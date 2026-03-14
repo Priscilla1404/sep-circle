@@ -105,6 +105,20 @@ export const store = {
   },
 
   // Postcards
+  updatePostcard: (postcardId, updates) => {
+    store.update(d => ({
+      ...d,
+      postcards: d.postcards.map(p => p.id === postcardId ? { ...p, ...updates } : p),
+    }));
+  },
+
+  deletePostcard: (postcardId) => {
+    store.update(d => ({
+      ...d,
+      postcards: d.postcards.filter(p => p.id !== postcardId),
+    }));
+  },
+
   addPostcard: (postcard) => {
     store.update(d => ({
       ...d,
@@ -124,6 +138,20 @@ export const store = {
   },
 
   // Books
+  updateBook: (bookId, updates) => {
+    store.update(d => ({
+      ...d,
+      books: d.books.map(b => b.id === bookId ? { ...b, ...updates } : b),
+    }));
+  },
+
+  deleteBook: (bookId) => {
+    store.update(d => ({
+      ...d,
+      books: d.books.filter(b => b.id !== bookId),
+    }));
+  },
+
   addBook: (book) => {
     store.update(d => ({
       ...d,
@@ -159,6 +187,20 @@ export const store = {
   },
 
   // Discussions
+  updateDiscussion: (discussionId, updates) => {
+    store.update(d => ({
+      ...d,
+      discussions: d.discussions.map(disc => disc.id === discussionId ? { ...disc, ...updates } : disc),
+    }));
+  },
+
+  deleteDiscussion: (discussionId) => {
+    store.update(d => ({
+      ...d,
+      discussions: d.discussions.filter(disc => disc.id !== discussionId),
+    }));
+  },
+
   addDiscussion: (discussion) => {
     store.update(d => ({
       ...d,
@@ -205,6 +247,26 @@ export const store = {
   },
 
   // Personal Albums
+  updateAlbumPhoto: (userId, photoId, updates) => {
+    store.update(d => ({
+      ...d,
+      personalAlbums: {
+        ...d.personalAlbums,
+        [userId]: (d.personalAlbums[userId] || []).map(p => p.id === photoId ? { ...p, ...updates } : p),
+      },
+    }));
+  },
+
+  deleteAlbumPhoto: (userId, photoId) => {
+    store.update(d => ({
+      ...d,
+      personalAlbums: {
+        ...d.personalAlbums,
+        [userId]: (d.personalAlbums[userId] || []).filter(p => p.id !== photoId),
+      },
+    }));
+  },
+
   addAlbumPhoto: (userId, photo) => {
     store.update(d => ({
       ...d,

@@ -5,8 +5,11 @@ import { fileToDataUrl } from '../lib/imageUtils';
 function BookCard({ book, users, currentUser, store: s }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [editReason, setEditReason] = useState(book.reason);
   const author = users.find(u => u.id === book.userId);
   const wantsToRead = book.wantToRead.includes(currentUser.id);
+  const isMine = book.userId === currentUser.id;
 
   const handleComment = (e) => {
     e.preventDefault();
@@ -18,6 +21,13 @@ function BookCard({ book, users, currentUser, store: s }) {
       date: new Date().toISOString().split('T')[0],
     });
     setNewComment('');
+  };
+
+  const handleSaveEdit = () => {
+    if (editReason.trim()) {
+      s.updateBook(book.id, { reason: editReason.trim() });
+    }
+    setEditing(false);
   };
 
   return (
@@ -32,7 +42,17 @@ function BookCard({ book, users, currentUser, store: s }) {
           <img src={author?.avatar} alt="" className="book-recommender-avatar" />
           <span>Recommended by {author?.name?.split(' ')[0]}</span>
         </div>
-        <p className="book-reason">"{book.reason}"</p>
+        {editing ? (
+          <div className="inline-edit">
+            <textarea value={editReason} onChange={e => setEditReason(e.target.value)} className="inline-edit-textarea" rows={2} />
+            <div className="inline-edit-actions">
+              <button onClick={handleSaveEdit} className="inline-edit-save">Save</button>
+              <button onClick={() => setEditing(false)} className="inline-edit-cancel">Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <p className="book-reason">"{book.reason}"</p>
+        )}
         <div className="book-actions">
           <button
             className={`want-to-read-btn ${wantsToRead ? 'active' : ''}`}
@@ -44,6 +64,8 @@ function BookCard({ book, users, currentUser, store: s }) {
           <button className="comments-toggle" onClick={() => setShowComments(!showComments)}>
             {book.comments.length} comment{book.comments.length !== 1 ? 's' : ''}
           </button>
+          {isMine && !editing && <button className="owner-btn-inline" onClick={() => setEditing(true)}>Edit</button>}
+          {isMine && <button className="owner-btn-inline danger" onClick={() => { if (confirm('Delete this book recommendation?')) s.deleteBook(book.id); }}>Delete</button>}
         </div>
         {showComments && (
           <div className="book-comments">

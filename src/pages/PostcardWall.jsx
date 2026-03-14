@@ -19,10 +19,13 @@ function getWeeklySpotlight(postcards) {
   return recent[Math.floor(Math.random() * recent.length)];
 }
 
-function PostcardCard({ postcard, users, currentUser, onComment, isSpotlight }) {
+function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDelete, isSpotlight }) {
   const [flipped, setFlipped] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [editingCaption, setEditingCaption] = useState(false);
+  const [editCaption, setEditCaption] = useState(postcard.caption);
   const author = users.find(u => u.id === postcard.userId);
+  const isMine = postcard.userId === currentUser.id;
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
@@ -36,21 +39,43 @@ function PostcardCard({ postcard, users, currentUser, onComment, isSpotlight }) 
     setNewComment('');
   };
 
+  const handleSaveCaption = (e) => {
+    e.stopPropagation();
+    if (editCaption.trim()) {
+      onUpdate(postcard.id, { caption: editCaption.trim() });
+    }
+    setEditingCaption(false);
+  };
+
   return (
     <div className={`postcard ${flipped ? 'flipped' : ''} ${isSpotlight ? 'spotlight' : ''}`}>
       {isSpotlight && <div className="spotlight-badge">Postcard of the Week</div>}
-      <div className="postcard-inner" onClick={() => setFlipped(!flipped)}>
+      <div className="postcard-inner" onClick={() => !editingCaption && setFlipped(!flipped)}>
         {/* Front */}
         <div className="postcard-front">
           <img src={postcard.imageUrl} alt="" className="postcard-image" />
           <div className="postcard-overlay">
-            <p className="postcard-caption">{postcard.caption}</p>
+            {editingCaption ? (
+              <div className="inline-edit" onClick={e => e.stopPropagation()}>
+                <input type="text" value={editCaption} onChange={e => setEditCaption(e.target.value)} maxLength={150} className="inline-edit-input" autoFocus />
+                <button onClick={handleSaveCaption} className="inline-edit-save">Save</button>
+                <button onClick={(e) => { e.stopPropagation(); setEditingCaption(false); }} className="inline-edit-cancel">Cancel</button>
+              </div>
+            ) : (
+              <p className="postcard-caption">{postcard.caption}</p>
+            )}
             <div className="postcard-meta">
               <img src={author?.avatar} alt="" className="postcard-author-avatar" />
               <span className="postcard-author-name">{author?.name?.split(' ')[0]}</span>
               <span className="postcard-stamp">{postcard.city} — {new Date(postcard.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
             </div>
           </div>
+          {isMine && !editingCaption && (
+            <div className="owner-actions" onClick={e => e.stopPropagation()}>
+              <button className="owner-btn" onClick={() => setEditingCaption(true)}>Edit</button>
+              <button className="owner-btn danger" onClick={() => { if (confirm('Delete this postcard?')) onDelete(postcard.id); }}>Delete</button>
+            </div>
+          )}
           <div className="flip-hint">Tap to flip</div>
         </div>
 
@@ -196,6 +221,8 @@ export default function PostcardWall() {
             users={data.users}
             currentUser={currentUser}
             onComment={s.addPostcardComment}
+            onUpdate={s.updatePostcard}
+            onDelete={s.deletePostcard}
             isSpotlight
           />
         )}
@@ -206,6 +233,8 @@ export default function PostcardWall() {
             users={data.users}
             currentUser={currentUser}
             onComment={s.addPostcardComment}
+            onUpdate={s.updatePostcard}
+            onDelete={s.deletePostcard}
             isSpotlight={false}
           />
         ))}

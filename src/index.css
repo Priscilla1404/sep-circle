@@ -1470,6 +1470,116 @@ a { color: var(--navy); text-decoration: none; }
   .event-actions { flex-direction: row; }
 }
 
+/* ===== EDIT / DELETE CONTROLS ===== */
+.owner-actions {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.owner-btn {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.owner-btn:hover { background: rgba(0,0,0,0.8); }
+.owner-btn.danger:hover { background: #c53030; }
+
+.owner-btn-inline {
+  background: none;
+  border: none;
+  color: var(--navy);
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0 4px;
+}
+.owner-btn-inline:hover { color: var(--gold); }
+.owner-btn-inline.danger { color: var(--text-light); }
+.owner-btn-inline.danger:hover { color: #c53030; }
+
+.inline-edit {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.inline-edit-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font);
+  background: var(--white);
+  min-width: 150px;
+}
+
+.inline-edit-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font);
+  resize: vertical;
+}
+
+.inline-edit-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.inline-edit-save {
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inline-edit-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.album-photo-edit {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.album-photo-edit input {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font);
+}
+
+.album-photo-actions {
+  padding: 4px 10px 8px;
+  display: flex;
+  gap: 8px;
+}
+
 /* ===== FILE UPLOAD ===== */
 .file-input-hidden { display: none; }
 

@@ -3,6 +3,41 @@ import { useParams, NavLink } from 'react-router-dom';
 import { useStore } from '../lib/useStore';
 import { fileToDataUrl } from '../lib/imageUtils';
 
+function AlbumPhotoCard({ photo, isMe, userId, store: s }) {
+  const [editingCaption, setEditingCaption] = useState(false);
+  const [caption, setCaption] = useState(photo.caption);
+
+  const handleSave = () => {
+    s.updateAlbumPhoto(userId, photo.id, { caption: caption.trim() });
+    setEditingCaption(false);
+  };
+
+  return (
+    <div className="album-photo">
+      <img src={photo.url} alt={photo.caption} />
+      {editingCaption ? (
+        <div className="album-photo-edit">
+          <input type="text" value={caption} onChange={e => setCaption(e.target.value)} placeholder="Caption" autoFocus />
+          <div className="inline-edit-actions">
+            <button onClick={handleSave} className="inline-edit-save">Save</button>
+            <button onClick={() => setEditingCaption(false)} className="inline-edit-cancel">Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {photo.caption && <p className="album-caption">{photo.caption}</p>}
+          {isMe && (
+            <div className="album-photo-actions">
+              <button className="owner-btn-inline" onClick={() => setEditingCaption(true)}>Edit</button>
+              <button className="owner-btn-inline danger" onClick={() => { if (confirm('Delete this photo?')) s.deleteAlbumPhoto(userId, photo.id); }}>Delete</button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Profile() {
   const { userId } = useParams();
   const { data, currentUser, store: s } = useStore();
@@ -135,10 +170,7 @@ export default function Profile() {
         {albumPhotos.length > 0 ? (
           <div className="album-grid">
             {albumPhotos.map(photo => (
-              <div key={photo.id} className="album-photo">
-                <img src={photo.url} alt={photo.caption} />
-                {photo.caption && <p className="album-caption">{photo.caption}</p>}
-              </div>
+              <AlbumPhotoCard key={photo.id} photo={photo} isMe={isMe} userId={userId} store={s} />
             ))}
           </div>
         ) : (
