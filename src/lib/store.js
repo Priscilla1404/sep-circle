@@ -21,7 +21,12 @@ function loadData() {
 }
 
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Storage full — could not save. Consider clearing old data.');
+    alert('Storage is full. Try removing some photos before adding new ones.');
+  }
 }
 
 function getInitialData() {
