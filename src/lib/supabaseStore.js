@@ -16,7 +16,7 @@ export async function uploadImage(file, folder = 'general') {
   return data.publicUrl;
 }
 
-// Upload base64 data URL to Storage (for avatar etc)
+// Upload base64 data URL to Storage
 export async function uploadDataUrl(dataUrl, folder = 'general') {
   const res = await fetch(dataUrl);
   const blob = await res.blob();
@@ -45,19 +45,16 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
-export async function getCurrentSession() {
-  const { data } = await supabase.auth.getSession();
-  return data.session;
-}
-
 // ===== PROFILES =====
 export async function fetchProfiles() {
-  const { data } = await supabase.from('profiles').select('*').order('name');
+  const { data, error } = await supabase.from('profiles').select('*').order('name');
+  if (error) { console.error('fetchProfiles:', error); return []; }
   return data || [];
 }
 
 export async function fetchProfile(userId) {
-  const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+  if (error) { console.error('fetchProfile:', error); return null; }
   return data;
 }
 
@@ -68,10 +65,14 @@ export async function updateProfile(userId, updates) {
 
 // ===== POSTCARDS =====
 export async function fetchPostcards() {
-  const { data } = await supabase
-    .from('postcards')
-    .select('*, postcard_comments(*, profiles(id, name, avatar_url)), profiles(id, name, avatar_url)')
-    .order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('postcards').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('fetchPostcards:', error); return []; }
+  return data || [];
+}
+
+export async function fetchPostcardComments() {
+  const { data, error } = await supabase.from('postcard_comments').select('*').order('created_at');
+  if (error) { console.error('fetchPostcardComments:', error); return []; }
   return data || [];
 }
 
@@ -98,10 +99,20 @@ export async function addPostcardComment(comment) {
 
 // ===== BOOKS =====
 export async function fetchBooks() {
-  const { data } = await supabase
-    .from('books')
-    .select('*, book_comments(*, profiles(id, name, avatar_url)), book_want_to_read(user_id), profiles(id, name, avatar_url)')
-    .order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('fetchBooks:', error); return []; }
+  return data || [];
+}
+
+export async function fetchBookComments() {
+  const { data, error } = await supabase.from('book_comments').select('*').order('created_at');
+  if (error) { console.error('fetchBookComments:', error); return []; }
+  return data || [];
+}
+
+export async function fetchBookWantToRead() {
+  const { data, error } = await supabase.from('book_want_to_read').select('*');
+  if (error) { console.error('fetchBookWantToRead:', error); return []; }
   return data || [];
 }
 
@@ -142,10 +153,14 @@ export async function toggleWantToRead(bookId, userId) {
 
 // ===== DISCUSSIONS =====
 export async function fetchDiscussions() {
-  const { data } = await supabase
-    .from('discussions')
-    .select('*, discussion_replies(*, profiles(id, name, avatar_url)), profiles(id, name, avatar_url)')
-    .order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('discussions').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('fetchDiscussions:', error); return []; }
+  return data || [];
+}
+
+export async function fetchDiscussionReplies() {
+  const { data, error } = await supabase.from('discussion_replies').select('*').order('created_at');
+  if (error) { console.error('fetchDiscussionReplies:', error); return []; }
   return data || [];
 }
 
@@ -171,23 +186,28 @@ export async function addReply(reply) {
 }
 
 // ===== MESSAGES =====
+export async function fetchConversationParticipants(userId) {
+  const { data, error } = await supabase.from('conversation_participants').select('*').eq('user_id', userId);
+  if (error) { console.error('fetchConvParts:', error); return []; }
+  return data || [];
+}
+
 export async function fetchConversations(userId) {
   // Get conversation IDs for this user
-  const { data: participations } = await supabase
-    .from('conversation_participants')
-    .select('conversation_id')
-    .eq('user_id', userId);
+  const myParts = await fetchConversationParticipants(userId);
+  if (myParts.length === 0) return [];
 
-  if (!participations || participations.length === 0) return [];
+  const convIds = myParts.map(p => p.conversation_id);
 
-  const convIds = participations.map(p => p.conversation_id);
-  const { data } = await supabase
-    .from('conversations')
-    .select('*, conversation_participants(user_id, profiles(id, name, avatar_url)), messages(*, profiles:sender_id(id, name, avatar_url))')
-    .in('id', convIds)
-    .order('created_at', { ascending: false });
+  const { data: convs } = await supabase.from('conversations').select('*').in('id', convIds);
+  const { data: allParts } = await supabase.from('conversation_participants').select('*').in('conversation_id', convIds);
+  const { data: msgs } = await supabase.from('messages').select('*').in('conversation_id', convIds).order('created_at');
 
-  return data || [];
+  return (convs || []).map(c => ({
+    ...c,
+    participants: (allParts || []).filter(p => p.conversation_id === c.id),
+    messages: (msgs || []).filter(m => m.conversation_id === c.id),
+  }));
 }
 
 export async function startConversation(participants, isGroup, groupName) {
@@ -215,11 +235,12 @@ export async function sendMessage(message) {
 
 // ===== PERSONAL ALBUMS =====
 export async function fetchAlbumPhotos(userId) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('personal_album_photos')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
+  if (error) { console.error('fetchAlbumPhotos:', error); return []; }
   return data || [];
 }
 
@@ -240,11 +261,15 @@ export async function deleteAlbumPhoto(id) {
 
 // ===== LOUNGE EVENTS =====
 export async function fetchLoungeEvents() {
-  const { data } = await supabase
-    .from('lounge_events')
-    .select('*, lounge_event_attendees(user_id), profiles:created_by(id, name, avatar_url)')
-    .order('event_date', { ascending: true });
-  return data || [];
+  const { data: events, error } = await supabase.from('lounge_events').select('*').order('event_date');
+  if (error) { console.error('fetchLoungeEvents:', error); return []; }
+
+  const { data: attendees } = await supabase.from('lounge_event_attendees').select('*');
+
+  return (events || []).map(e => ({
+    ...e,
+    attendees: (attendees || []).filter(a => a.event_id === e.id),
+  }));
 }
 
 export async function addLoungeEvent(event) {

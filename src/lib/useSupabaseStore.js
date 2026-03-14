@@ -6,8 +6,12 @@ export function useSupabaseStore() {
   const [currentUser, setCurrentUser] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [postcards, setPostcards] = useState([]);
+  const [postcardComments, setPostcardComments] = useState([]);
   const [books, setBooks] = useState([]);
+  const [bookComments, setBookComments] = useState([]);
+  const [bookWantToRead, setBookWantToRead] = useState([]);
   const [discussions, setDiscussions] = useState([]);
+  const [discussionReplies, setDiscussionReplies] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [albumPhotos, setAlbumPhotos] = useState({});
   const [loungeEvents, setLoungeEvents] = useState([]);
@@ -44,22 +48,34 @@ export function useSupabaseStore() {
 
   // ===== LOAD ALL DATA =====
   const loadAllData = async (userId) => {
-    const [p, pc, b, d, le] = await Promise.all([
-      db.fetchProfiles(),
-      db.fetchPostcards(),
-      db.fetchBooks(),
-      db.fetchDiscussions(),
-      db.fetchLoungeEvents(),
-    ]);
-    setProfiles(p);
-    setPostcards(pc);
-    setBooks(b);
-    setDiscussions(d);
-    setLoungeEvents(le);
+    try {
+      const [p, pc, pcComments, b, bComments, bWtr, d, dReplies, le] = await Promise.all([
+        db.fetchProfiles(),
+        db.fetchPostcards(),
+        db.fetchPostcardComments(),
+        db.fetchBooks(),
+        db.fetchBookComments(),
+        db.fetchBookWantToRead(),
+        db.fetchDiscussions(),
+        db.fetchDiscussionReplies(),
+        db.fetchLoungeEvents(),
+      ]);
+      setProfiles(p);
+      setPostcards(pc);
+      setPostcardComments(pcComments);
+      setBooks(b);
+      setBookComments(bComments);
+      setBookWantToRead(bWtr);
+      setDiscussions(d);
+      setDiscussionReplies(dReplies);
+      setLoungeEvents(le);
 
-    if (userId) {
-      const convs = await db.fetchConversations(userId);
-      setConversations(convs);
+      if (userId) {
+        const convs = await db.fetchConversations(userId);
+        setConversations(convs);
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
     }
   };
 
@@ -73,18 +89,7 @@ export function useSupabaseStore() {
 
     const channel = supabase
       .channel('db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'postcards' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'postcard_comments' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'book_comments' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'book_want_to_read' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'discussions' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'discussion_replies' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'personal_album_photos' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'lounge_events' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'lounge_event_attendees' }, () => refresh())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => refresh())
       .subscribe();
 
     return () => {
@@ -92,9 +97,7 @@ export function useSupabaseStore() {
     };
   }, [currentUser, refresh]);
 
-  // ===== NORMALIZED DATA (match old store shape) =====
-
-  // Transform Supabase postcard data to match old format
+  // ===== BUILD NORMALIZED DATA =====
   const normalizedPostcards = postcards.map(p => ({
     id: p.id,
     userId: p.user_id,
@@ -103,12 +106,9 @@ export function useSupabaseStore() {
     city: p.city,
     country: p.country,
     date: p.created_at?.split('T')[0],
-    comments: (p.postcard_comments || []).map(c => ({
-      id: c.id,
-      userId: c.user_id,
-      text: c.text,
-      date: c.created_at?.split('T')[0],
-    })),
+    comments: postcardComments
+      .filter(c => c.postcard_id === p.id)
+      .map(c => ({ id: c.id, userId: c.user_id, text: c.text, date: c.created_at?.split('T')[0] })),
   }));
 
   const normalizedBooks = books.map(b => ({
@@ -119,13 +119,10 @@ export function useSupabaseStore() {
     coverUrl: b.cover_url,
     reason: b.reason,
     date: b.created_at?.split('T')[0],
-    wantToRead: (b.book_want_to_read || []).map(w => w.user_id),
-    comments: (b.book_comments || []).map(c => ({
-      id: c.id,
-      userId: c.user_id,
-      text: c.text,
-      date: c.created_at?.split('T')[0],
-    })),
+    wantToRead: bookWantToRead.filter(w => w.book_id === b.id).map(w => w.user_id),
+    comments: bookComments
+      .filter(c => c.book_id === b.id)
+      .map(c => ({ id: c.id, userId: c.user_id, text: c.text, date: c.created_at?.split('T')[0] })),
   }));
 
   const normalizedDiscussions = discussions.map(d => ({
@@ -134,19 +131,16 @@ export function useSupabaseStore() {
     title: d.title,
     category: d.category,
     date: d.created_at?.split('T')[0],
-    replies: (d.discussion_replies || []).map(r => ({
-      id: r.id,
-      userId: r.user_id,
-      text: r.text,
-      date: r.created_at?.split('T')[0],
-    })),
+    replies: discussionReplies
+      .filter(r => r.discussion_id === d.id)
+      .map(r => ({ id: r.id, userId: r.user_id, text: r.text, date: r.created_at?.split('T')[0] })),
   }));
 
   const normalizedConversations = conversations.map(c => ({
     id: c.id,
     isGroup: c.is_group,
     groupName: c.group_name,
-    participants: (c.conversation_participants || []).map(p => p.user_id),
+    participants: (c.participants || []).map(p => p.user_id),
     messages: (c.messages || []).map(m => ({
       id: m.id,
       senderId: m.sender_id,
@@ -176,7 +170,7 @@ export function useSupabaseStore() {
     date: e.event_date,
     time: e.event_time,
     meetLink: e.meet_link,
-    attendees: (e.lounge_event_attendees || []).map(a => a.user_id),
+    attendees: (e.attendees || []).map(a => a.user_id),
   }));
 
   const normalizedCurrentUser = currentUser ? {
@@ -192,11 +186,10 @@ export function useSupabaseStore() {
     session: currentUser.session,
   } : null;
 
-  // ===== STORE ACTIONS (match old store interface) =====
+  // ===== STORE ACTIONS =====
   const store = {
     loginWithEmail: async (email, password) => {
-      const result = await db.loginWithEmail(email, password);
-      return result;
+      return await db.loginWithEmail(email, password);
     },
 
     logout: async () => {
@@ -222,7 +215,6 @@ export function useSupabaseStore() {
       refresh();
     },
 
-    // Postcards
     addPostcard: async (postcard) => {
       await db.addPostcard({
         user_id: postcard.userId,
@@ -235,9 +227,7 @@ export function useSupabaseStore() {
     },
 
     updatePostcard: async (postcardId, updates) => {
-      const dbUpdates = {};
-      if (updates.caption !== undefined) dbUpdates.caption = updates.caption;
-      await db.updatePostcard(postcardId, dbUpdates);
+      await db.updatePostcard(postcardId, { caption: updates.caption });
       refresh();
     },
 
@@ -255,7 +245,6 @@ export function useSupabaseStore() {
       refresh();
     },
 
-    // Books
     addBook: async (book) => {
       await db.addBook({
         user_id: book.userId,
@@ -268,9 +257,7 @@ export function useSupabaseStore() {
     },
 
     updateBook: async (bookId, updates) => {
-      const dbUpdates = {};
-      if (updates.reason !== undefined) dbUpdates.reason = updates.reason;
-      await db.updateBook(bookId, dbUpdates);
+      await db.updateBook(bookId, { reason: updates.reason });
       refresh();
     },
 
@@ -293,7 +280,6 @@ export function useSupabaseStore() {
       refresh();
     },
 
-    // Discussions
     addDiscussion: async (discussion) => {
       await db.addDiscussion({
         user_id: discussion.userId,
@@ -304,9 +290,7 @@ export function useSupabaseStore() {
     },
 
     updateDiscussion: async (discussionId, updates) => {
-      const dbUpdates = {};
-      if (updates.title !== undefined) dbUpdates.title = updates.title;
-      await db.updateDiscussion(discussionId, dbUpdates);
+      await db.updateDiscussion(discussionId, { title: updates.title });
       refresh();
     },
 
@@ -324,7 +308,6 @@ export function useSupabaseStore() {
       refresh();
     },
 
-    // Messages
     startConversation: async (participants, isGroup, groupName) => {
       const convId = await db.startConversation(participants, isGroup, groupName);
       refresh();
@@ -340,27 +323,25 @@ export function useSupabaseStore() {
       refresh();
     },
 
-    // Album
     addAlbumPhoto: async (userId, photo) => {
       await db.addAlbumPhoto({
         user_id: userId,
         url: photo.url,
         caption: photo.caption,
       });
-      refresh();
+      if (loadAlbumPhotos) loadAlbumPhotos(userId);
     },
 
     updateAlbumPhoto: async (userId, photoId, updates) => {
       await db.updateAlbumPhoto(photoId, updates);
-      refresh();
+      if (loadAlbumPhotos) loadAlbumPhotos(userId);
     },
 
     deleteAlbumPhoto: async (userId, photoId) => {
       await db.deleteAlbumPhoto(photoId);
-      refresh();
+      if (loadAlbumPhotos) loadAlbumPhotos(userId);
     },
 
-    // Lounge
     addLoungeEvent: async (event) => {
       const e = await db.addLoungeEvent({
         created_by: event.createdBy,
@@ -370,24 +351,18 @@ export function useSupabaseStore() {
         event_time: event.time,
         meet_link: event.meetLink,
       });
-      // Auto-attend as creator
       await db.toggleEventAttendance(e.id, event.createdBy);
       refresh();
-    },
-
-    // For lounge attendance toggle
-    update: (updater) => {
-      // This is used by SchwabLounge for toggleAttendance
-      // We intercept and use Supabase instead
     },
 
     toggleEventAttendance: async (eventId, userId) => {
       await db.toggleEventAttendance(eventId, userId);
       refresh();
     },
+
+    update: () => {}, // no-op for Supabase mode
   };
 
-  // Load album photos for a specific user
   const loadAlbumPhotos = async (userId) => {
     const photos = await db.fetchAlbumPhotos(userId);
     setAlbumPhotos(prev => ({
