@@ -814,10 +814,103 @@ a { color: var(--navy); text-decoration: none; }
   flex-direction: column;
 }
 
-.messages-sidebar h2 {
+.messages-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 16px 20px;
-  font-size: 18px;
   border-bottom: 1px solid var(--border);
+}
+
+.messages-sidebar-header h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.new-conv-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.new-conv-btn:hover { background: var(--navy-light); }
+
+.new-conv-panel {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--warm-gray);
+}
+
+.new-conv-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.new-conv-users {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.new-conv-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--white);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.new-conv-user.selected {
+  border-color: var(--gold);
+  background: rgba(197,164,78,0.15);
+}
+.new-conv-user:hover { border-color: var(--gold); }
+
+.new-conv-avatar { width: 22px; height: 22px; border-radius: 50%; }
+
+.group-name-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font);
+  margin-bottom: 8px;
+}
+
+.start-conv-btn { width: 100%; }
+
+.no-convs-hint {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 13px;
+}
+.no-convs-hint p { margin-bottom: 4px; }
+
+.no-messages-yet {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  font-size: 14px;
+  font-style: italic;
 }
 
 .conversations-list { flex: 1; overflow-y: auto; }
