@@ -380,10 +380,9 @@ a { color: var(--navy); text-decoration: none; }
 
 .postcard-image {
   width: 100%;
-  max-height: 420px;
-  object-fit: contain;
+  height: 320px;
+  object-fit: cover;
   display: block;
-  background: #f0ece6;
 }
 
 .postcard-overlay {
@@ -1962,7 +1961,7 @@ a { color: var(--navy); text-decoration: none; }
   }
 
   .postcard.spotlight { max-width: 100%; }
-  .postcard-image { max-height: 300px; }
+  .postcard-image { height: 240px; }
   .postcard { min-height: auto; }
 
   .postcard-caption { font-size: 14px; }
@@ -2146,5 +2145,5 @@ a { color: var(--navy); text-decoration: none; }
   .app-main { padding: 12px 10px; }
   .page-header h1 { font-size: 20px; }
   .album-grid { grid-template-columns: 1fr; }
-  .postcard-image { max-height: 260px; }
+  .postcard-image { height: 200px; }
 }

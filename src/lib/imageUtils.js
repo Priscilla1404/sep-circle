@@ -1,6 +1,6 @@
 // Compress and resize an image file to a smaller data URL
 // This keeps localStorage from hitting its ~5MB limit
-export function fileToDataUrl(file, maxWidth = 1200, quality = 0.8) {
+export function fileToDataUrl(file, maxDimension = 1000, quality = 0.75) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = reject;
@@ -12,9 +12,11 @@ export function fileToDataUrl(file, maxWidth = 1200, quality = 0.8) {
         let width = img.width;
         let height = img.height;
 
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
+        // Scale down so neither dimension exceeds maxDimension
+        if (width > maxDimension || height > maxDimension) {
+          const ratio = Math.min(maxDimension / width, maxDimension / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
         }
 
         canvas.width = width;
