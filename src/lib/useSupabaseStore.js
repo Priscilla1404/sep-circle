@@ -42,10 +42,19 @@ export function useSupabaseStore() {
   }, []);
 
   const loadUserProfile = async (userId) => {
-    const profile = await db.fetchProfile(userId);
+    let profile = await db.fetchProfile(userId);
+    if (!profile) {
+      // Profile missing — create it from auth user data
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const name = user.user_metadata?.name || user.email?.split('@')[0] || '';
+        await db.upsertProfile({ id: user.id, name, email: user.email });
+        profile = await db.fetchProfile(userId);
+      }
+    }
     setCurrentUser(profile);
     setLoading(false);
-    loadAllData(userId);
+    if (profile) loadAllData(userId);
   };
 
   // ===== LOAD ALL DATA =====

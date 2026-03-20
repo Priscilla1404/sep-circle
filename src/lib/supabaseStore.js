@@ -58,6 +58,14 @@ export async function fetchProfile(userId) {
   return data;
 }
 
+export async function upsertProfile({ id, name, email }) {
+  const { error } = await supabase.from('profiles').upsert(
+    { id, name, email },
+    { onConflict: 'id' }
+  );
+  if (error) console.error('upsertProfile:', error);
+}
+
 export async function updateProfile(userId, updates) {
   const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
   if (error) throw error;
