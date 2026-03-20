@@ -1,15 +1,6 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useAppStore } from '../App';
 import { fileToDataUrl } from '../lib/imageUtils';
-
-function shuffleArray(arr) {
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
 
 function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDelete }) {
   const [flipped, setFlipped] = useState(false);
@@ -118,9 +109,7 @@ export default function PostcardWall() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  const shuffled = useMemo(() => {
-    return shuffleArray(data.postcards);
-  }, [data.postcards.length]);
+  const sorted = [...data.postcards].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -192,7 +181,7 @@ export default function PostcardWall() {
       )}
 
       <div className="postcard-board">
-        {shuffled.map(postcard => (
+        {sorted.map(postcard => (
           <PostcardCard
             key={postcard.id}
             postcard={postcard}
