@@ -1853,8 +1853,8 @@ a { color: var(--navy); text-decoration: none; }
 .file-upload-btn:hover { border-color: var(--gold); background: var(--white); }
 
 .upload-preview {
-  width: 100%;
-  max-height: 240px;
+  max-width: 300px;
+  max-height: 200px;
   object-fit: cover;
   border-radius: var(--radius-sm);
 }
