@@ -11,15 +11,7 @@ function shuffleArray(arr) {
   return shuffled;
 }
 
-function getWeeklySpotlight(postcards) {
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const recent = postcards.filter(p => new Date(p.date) >= oneWeekAgo);
-  if (recent.length === 0) return postcards[0] || null;
-  return recent[Math.floor(Math.random() * recent.length)];
-}
-
-function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDelete, isSpotlight }) {
+function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDelete }) {
   const [flipped, setFlipped] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [editingCaption, setEditingCaption] = useState(false);
@@ -48,13 +40,13 @@ function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDel
   };
 
   return (
-    <div className={`postcard ${flipped ? 'flipped' : ''} ${isSpotlight ? 'spotlight' : ''}`}>
-      {isSpotlight && <div className="spotlight-badge">Postcard of the Week</div>}
+    <div className={`postcard ${flipped ? 'flipped' : ''}`}>
       <div className="postcard-inner" onClick={() => !editingCaption && setFlipped(!flipped)}>
         {/* Front */}
         <div className="postcard-front">
+          <div className="postcard-pin" />
           <img src={postcard.imageUrl} alt="" className="postcard-image" />
-          <div className="postcard-overlay">
+          <div className="postcard-info">
             {editingCaption ? (
               <div className="inline-edit" onClick={e => e.stopPropagation()}>
                 <input type="text" value={editCaption} onChange={e => setEditCaption(e.target.value)} maxLength={150} className="inline-edit-input" autoFocus />
@@ -62,7 +54,7 @@ function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDel
                 <button onClick={(e) => { e.stopPropagation(); setEditingCaption(false); }} className="inline-edit-cancel">Cancel</button>
               </div>
             ) : (
-              <p className="postcard-caption">{postcard.caption}</p>
+              postcard.caption && <p className="postcard-caption">{postcard.caption}</p>
             )}
             <div className="postcard-meta">
               <img src={author?.avatar} alt="" className="postcard-author-avatar" />
@@ -76,7 +68,7 @@ function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDel
               <button className="owner-btn danger" onClick={() => { if (confirm('Delete this postcard?')) onDelete(postcard.id); }}>Delete</button>
             </div>
           )}
-          <div className="flip-hint">Tap to flip</div>
+          <div className="flip-hint">{postcard.comments.length > 0 ? `${postcard.comments.length} comment${postcard.comments.length !== 1 ? 's' : ''} — tap to read` : 'Tap to flip'}</div>
         </div>
 
         {/* Back */}
@@ -126,12 +118,9 @@ export default function PostcardWall() {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  const spotlight = useMemo(() => getWeeklySpotlight(data.postcards), []);
   const shuffled = useMemo(() => {
-    const rest = data.postcards.filter(p => p.id !== spotlight?.id);
-    return shuffleArray(rest);
+    return shuffleArray(data.postcards);
   }, [data.postcards.length]);
-
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -202,19 +191,7 @@ export default function PostcardWall() {
         </form>
       )}
 
-      <div className="postcard-mosaic">
-        {spotlight && (
-          <PostcardCard
-            key={spotlight.id}
-            postcard={spotlight}
-            users={data.users}
-            currentUser={currentUser}
-            onComment={s.addPostcardComment}
-            onUpdate={s.updatePostcard}
-            onDelete={s.deletePostcard}
-            isSpotlight
-          />
-        )}
+      <div className="postcard-board">
         {shuffled.map(postcard => (
           <PostcardCard
             key={postcard.id}
@@ -224,10 +201,16 @@ export default function PostcardWall() {
             onComment={s.addPostcardComment}
             onUpdate={s.updatePostcard}
             onDelete={s.deletePostcard}
-            isSpotlight={false}
           />
         ))}
       </div>
+
+      {data.postcards.length === 0 && (
+        <div className="empty-state">
+          <p>The board is empty.</p>
+          <p>Pin the first postcard from your travels!</p>
+        </div>
+      )}
     </div>
   );
 }
