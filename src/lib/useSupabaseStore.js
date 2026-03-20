@@ -221,7 +221,13 @@ export function useSupabaseStore() {
       if (updates.city !== undefined) dbUpdates.city = updates.city;
       if (updates.country !== undefined) dbUpdates.country = updates.country;
       if (updates.bio !== undefined) dbUpdates.bio = updates.bio;
-      if (updates.avatar !== undefined) dbUpdates.avatar_url = updates.avatar;
+      if (updates.avatar !== undefined) {
+        let avatarUrl = updates.avatar;
+        if (avatarUrl && avatarUrl.startsWith('data:')) {
+          avatarUrl = await db.uploadDataUrl(avatarUrl, 'avatars');
+        }
+        dbUpdates.avatar_url = avatarUrl;
+      }
       await db.updateProfile(userId, dbUpdates);
       refresh();
     },
@@ -232,9 +238,13 @@ export function useSupabaseStore() {
     },
 
     addPostcard: async (postcard) => {
+      let imageUrl = postcard.imageUrl;
+      if (imageUrl && imageUrl.startsWith('data:')) {
+        imageUrl = await db.uploadDataUrl(imageUrl, 'postcards');
+      }
       await db.addPostcard({
         user_id: postcard.userId,
-        image_url: postcard.imageUrl,
+        image_url: imageUrl,
         caption: postcard.caption,
         city: postcard.city,
         country: postcard.country,
@@ -340,9 +350,13 @@ export function useSupabaseStore() {
     },
 
     addAlbumPhoto: async (userId, photo) => {
+      let url = photo.url;
+      if (url && url.startsWith('data:')) {
+        url = await db.uploadDataUrl(url, 'albums');
+      }
       await db.addAlbumPhoto({
         user_id: userId,
-        url: photo.url,
+        url,
         caption: photo.caption,
       });
       if (loadAlbumPhotos) loadAlbumPhotos(userId);
