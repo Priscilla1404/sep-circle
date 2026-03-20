@@ -15,7 +15,7 @@ export const seedUsers = [
   {
     id: '2',
     name: 'Maria Tereza Azevedo',
-    email: 'mazevedo@alumni.gsb.stanford.edu',
+    email: 'mariatereza@alumni.gsb.stanford.edu',
     password: 'sep2025',
     country: 'Brazil',
     city: 'São Paulo',
@@ -28,7 +28,7 @@ export const seedUsers = [
   {
     id: '3',
     name: 'Katie Sandell',
-    email: 'ksandell@alumni.gsb.stanford.edu',
+    email: 'katiesandell@alumni.gsb.stanford.edu',
     password: 'sep2025',
     country: 'United States',
     city: 'San Francisco',
@@ -41,7 +41,7 @@ export const seedUsers = [
   {
     id: '4',
     name: 'Febie Yuriza Poetri',
-    email: 'fpoetri@alumni.gsb.stanford.edu',
+    email: 'febie.poetri@alumni.gsb.stanford.edu',
     password: 'sep2025',
     country: 'Indonesia',
     city: 'Jakarta',
@@ -54,10 +54,10 @@ export const seedUsers = [
   {
     id: '5',
     name: 'João Paulo Ferraz Vasconcellos',
-    email: 'jpvasconcellos@alumni.gsb.stanford.edu',
+    email: 'jpfvasconcellos@alumni.gsb.stanford.edu',
     password: 'sep2025',
     country: 'United States',
-    city: 'New York',
+    city: 'Palo Alto',
     title: 'Managing Partner / Head of Corporate M&A Practice',
     company: 'Leoni Siqueira Advogados',
     bio: '',
@@ -67,7 +67,7 @@ export const seedUsers = [
   {
     id: '6',
     name: 'Gonzalo Cuello',
-    email: 'gcuello@alumni.gsb.stanford.edu',
+    email: 'gonzalo.cuello@alumni.gsb.stanford.edu',
     password: 'sep2025',
     country: 'Argentina',
     city: 'Buenos Aires',
@@ -80,7 +80,7 @@ export const seedUsers = [
   {
     id: '7',
     name: 'Luis Andres Cano',
-    email: 'lacano@alumni.gsb.stanford.edu',
+    email: 'laco@alumni.gsb.stanford.edu',
     password: 'sep2025',
     country: 'Mexico',
     city: 'Mexico City',

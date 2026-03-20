@@ -1,6 +1,6 @@
 // Compress and resize an image file to a smaller data URL
 // This keeps localStorage from hitting its ~5MB limit
-export function fileToDataUrl(file, maxWidth = 800, quality = 0.7) {
+export function fileToDataUrl(file, maxWidth = 1200, quality = 0.8) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = reject;

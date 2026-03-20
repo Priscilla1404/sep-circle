@@ -15,6 +15,8 @@ export function useSupabaseStore() {
   const [conversations, setConversations] = useState([]);
   const [albumPhotos, setAlbumPhotos] = useState({});
   const [loungeEvents, setLoungeEvents] = useState([]);
+  const [travelPlans, setTravelPlans] = useState([]);
+  const [albumCounts, setAlbumCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
   // ===== AUTH =====
@@ -49,7 +51,7 @@ export function useSupabaseStore() {
   // ===== LOAD ALL DATA =====
   const loadAllData = async (userId) => {
     try {
-      const [p, pc, pcComments, b, bComments, bWtr, d, dReplies, le] = await Promise.all([
+      const [p, pc, pcComments, b, bComments, bWtr, d, dReplies, le, tp, ac] = await Promise.all([
         db.fetchProfiles(),
         db.fetchPostcards(),
         db.fetchPostcardComments(),
@@ -59,6 +61,8 @@ export function useSupabaseStore() {
         db.fetchDiscussions(),
         db.fetchDiscussionReplies(),
         db.fetchLoungeEvents(),
+        db.fetchTravelPlans(),
+        db.fetchAllAlbumCounts(),
       ]);
       setProfiles(p);
       setPostcards(pc);
@@ -69,6 +73,8 @@ export function useSupabaseStore() {
       setDiscussions(d);
       setDiscussionReplies(dReplies);
       setLoungeEvents(le);
+      setTravelPlans(tp);
+      setAlbumCounts(ac);
 
       if (userId) {
         const convs = await db.fetchConversations(userId);
@@ -171,6 +177,16 @@ export function useSupabaseStore() {
     time: e.event_time,
     meetLink: e.meet_link,
     attendees: (e.attendees || []).map(a => a.user_id),
+  }));
+
+  const normalizedTravelPlans = travelPlans.map(t => ({
+    id: t.id,
+    userId: t.user_id,
+    city: t.city,
+    country: t.country,
+    dateFrom: t.date_from,
+    dateTo: t.date_to,
+    note: t.note,
   }));
 
   const normalizedCurrentUser = currentUser ? {
@@ -360,6 +376,23 @@ export function useSupabaseStore() {
       refresh();
     },
 
+    addTravelPlan: async (plan) => {
+      await db.addTravelPlan({
+        user_id: plan.userId,
+        city: plan.city,
+        country: plan.country,
+        date_from: plan.dateFrom,
+        date_to: plan.dateTo,
+        note: plan.note,
+      });
+      refresh();
+    },
+
+    deleteTravelPlan: async (planId) => {
+      await db.deleteTravelPlan(planId);
+      refresh();
+    },
+
     update: () => {}, // no-op for Supabase mode
   };
 
@@ -379,6 +412,8 @@ export function useSupabaseStore() {
     messages: normalizedConversations,
     personalAlbums: albumPhotos,
     loungeEvents: normalizedLoungeEvents,
+    travelPlans: normalizedTravelPlans,
+    albumCounts,
   };
 
   return { data, currentUser: normalizedCurrentUser, store, loading, refresh, loadAlbumPhotos };

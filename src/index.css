@@ -380,9 +380,10 @@ a { color: var(--navy); text-decoration: none; }
 
 .postcard-image {
   width: 100%;
-  height: 280px;
-  object-fit: cover;
+  max-height: 420px;
+  object-fit: contain;
   display: block;
+  background: #f0ece6;
 }
 
 .postcard-overlay {
@@ -1233,6 +1234,258 @@ a { color: var(--navy); text-decoration: none; }
   font-style: italic;
 }
 
+/* ===== MEMBERS ===== */
+.members-page { }
+
+.members-search {
+  margin-bottom: 20px;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.member-card:hover {
+  border-color: var(--gold);
+  box-shadow: var(--shadow);
+}
+
+.member-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.member-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 12px;
+  height: 12px;
+  background: var(--success);
+  border: 2px solid var(--white);
+  border-radius: 50%;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-heading);
+}
+
+.member-title {
+  font-size: 13px;
+  color: var(--text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-location {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.member-album-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--gold);
+  background: rgba(197, 164, 78, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .members-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== TRAVEL TRACKER ===== */
+.travel-tracker-page { }
+
+.new-travel-form {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.new-travel-form input[type="text"],
+.new-travel-form input[type="date"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font);
+}
+
+.travel-list { display: flex; flex-direction: column; gap: 12px; }
+
+.travel-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+}
+
+.travel-card:hover { box-shadow: var(--shadow-lg); }
+
+.travel-card.past { opacity: 0.6; }
+
+.travel-card-left {
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.travel-city {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy);
+  display: block;
+}
+
+.travel-country {
+  font-size: 13px;
+  color: var(--text-light);
+  display: block;
+}
+
+.travel-dates {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.travel-card-center { flex: 1; min-width: 0; }
+
+.travel-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.travel-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.travel-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-heading);
+}
+
+.travel-note {
+  font-size: 13px;
+  color: var(--text);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.travel-overlap {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: #f0f7ff;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d0e3f7;
+}
+
+.overlap-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.overlap-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--navy);
+}
+
+.overlap-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.travel-card-right {
+  flex-shrink: 0;
+}
+
+.past-trips {
+  margin-top: 32px;
+}
+
+.past-trips h3 {
+  font-size: 16px;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+  .travel-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .travel-card-left {
+    min-width: unset;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+}
+
 /* ===== SCHWAB LOUNGE ===== */
 .lounge-page { }
 
@@ -1709,7 +1962,7 @@ a { color: var(--navy); text-decoration: none; }
   }
 
   .postcard.spotlight { max-width: 100%; }
-  .postcard-image { height: 220px; }
+  .postcard-image { max-height: 300px; }
   .postcard { min-height: auto; }
 
   .postcard-caption { font-size: 14px; }
@@ -1893,5 +2146,5 @@ a { color: var(--navy); text-decoration: none; }
   .app-main { padding: 12px 10px; }
   .page-header h1 { font-size: 20px; }
   .album-grid { grid-template-columns: 1fr; }
-  .postcard-image { height: 200px; }
+  .postcard-image { max-height: 260px; }
 }

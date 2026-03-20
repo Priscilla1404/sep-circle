@@ -12,6 +12,8 @@ import NearMe from './pages/NearMe';
 import Messages from './pages/Messages';
 import SchwabLounge from './pages/SchwabLounge';
 import Profile from './pages/Profile';
+import TravelTracker from './pages/TravelTracker';
+import Members from './pages/Members';
 
 // Context to share store across components
 export const StoreContext = createContext(null);
@@ -53,6 +55,8 @@ function AppWithSupabase() {
             <Route path="/discussions" element={<Discussions />} />
             <Route path="/lounge" element={<SchwabLounge />} />
             <Route path="/nearby" element={<NearMe />} />
+            <Route path="/travel" element={<TravelTracker />} />
+            <Route path="/members" element={<Members />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile/:userId" element={<Profile />} />
           </Route>
@@ -81,6 +85,8 @@ function AppWithLocalStorage() {
             <Route path="/discussions" element={<Discussions />} />
             <Route path="/lounge" element={<SchwabLounge />} />
             <Route path="/nearby" element={<NearMe />} />
+            <Route path="/travel" element={<TravelTracker />} />
+            <Route path="/members" element={<Members />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile/:userId" element={<Profile />} />
           </Route>

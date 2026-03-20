@@ -234,6 +234,18 @@ export async function sendMessage(message) {
 }
 
 // ===== PERSONAL ALBUMS =====
+export async function fetchAllAlbumCounts() {
+  const { data, error } = await supabase
+    .from('personal_album_photos')
+    .select('user_id');
+  if (error) { console.error('fetchAllAlbumCounts:', error); return {}; }
+  const counts = {};
+  (data || []).forEach(row => {
+    counts[row.user_id] = (counts[row.user_id] || 0) + 1;
+  });
+  return counts;
+}
+
 export async function fetchAlbumPhotos(userId) {
   const { data, error } = await supabase
     .from('personal_album_photos')
@@ -256,6 +268,24 @@ export async function updateAlbumPhoto(id, updates) {
 
 export async function deleteAlbumPhoto(id) {
   const { error } = await supabase.from('personal_album_photos').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ===== TRAVEL PLANS =====
+export async function fetchTravelPlans() {
+  const { data, error } = await supabase.from('travel_plans').select('*').order('date_from');
+  if (error) { console.error('fetchTravelPlans:', error); return []; }
+  return data || [];
+}
+
+export async function addTravelPlan(plan) {
+  const { data, error } = await supabase.from('travel_plans').insert(plan).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteTravelPlan(id) {
+  const { error } = await supabase.from('travel_plans').delete().eq('id', id);
   if (error) throw error;
 }
 

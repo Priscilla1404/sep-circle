@@ -7,6 +7,8 @@ const navItems = [
   { to: '/discussions', label: 'Discuss', icon: '💬' },
   { to: '/lounge', label: 'Schwab Lounge', icon: '🛋' },
   { to: '/nearby', label: 'Near Me', icon: '📍' },
+  { to: '/travel', label: 'Travel', icon: '✈' },
+  { to: '/members', label: 'Members', icon: '👥' },
   { to: '/messages', label: 'DMs', icon: '✏' },
 ];
 

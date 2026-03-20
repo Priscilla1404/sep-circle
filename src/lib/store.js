@@ -49,6 +49,7 @@ function getInitialData() {
     messages: seedMessages,
     personalAlbums: {},
     loungeEvents: seedLoungeEvents,
+    travelPlans: [],
   };
   saveData(initial);
   return initial;
@@ -292,6 +293,21 @@ export const store = {
     store.update(d => ({
       ...d,
       loungeEvents: [...d.loungeEvents, event],
+    }));
+  },
+
+  // Travel Plans
+  addTravelPlan: (plan) => {
+    store.update(d => ({
+      ...d,
+      travelPlans: [...d.travelPlans, plan],
+    }));
+  },
+
+  deleteTravelPlan: (planId) => {
+    store.update(d => ({
+      ...d,
+      travelPlans: d.travelPlans.filter(t => t.id !== planId),
     }));
   },
 

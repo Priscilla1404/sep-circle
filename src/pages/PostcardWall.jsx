@@ -132,14 +132,6 @@ export default function PostcardWall() {
     return shuffleArray(rest);
   }, [data.postcards.length]);
 
-  const userPostsThisWeek = data.postcards.filter(p => {
-    if (p.userId !== currentUser.id) return false;
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    return new Date(p.date) >= oneWeekAgo;
-  }).length;
-
-  const canPost = userPostsThisWeek < 3;
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -177,12 +169,9 @@ export default function PostcardWall() {
           <p className="page-subtitle">Moments from around the world, shared by your SEP Circle.</p>
         </div>
         <div className="postcard-actions">
-          <span className="posts-remaining">{3 - userPostsThisWeek}/3 postcards this week</span>
-          {canPost && (
-            <button className="btn-primary" onClick={() => setShowNew(!showNew)}>
-              {showNew ? 'Cancel' : 'Send a Postcard'}
-            </button>
-          )}
+          <button className="btn-primary" onClick={() => setShowNew(!showNew)}>
+            {showNew ? 'Cancel' : 'Send a Postcard'}
+          </button>
         </div>
       </div>
 

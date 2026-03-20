@@ -113,6 +113,18 @@ create table personal_album_photos (
   created_at timestamptz default now()
 );
 
+-- Travel Plans
+create table travel_plans (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  city text not null,
+  country text default '',
+  date_from date not null,
+  date_to date,
+  note text default '',
+  created_at timestamptz default now()
+);
+
 -- Lounge Events
 create table lounge_events (
   id uuid default gen_random_uuid() primary key,
@@ -148,6 +160,7 @@ alter table conversations enable row level security;
 alter table conversation_participants enable row level security;
 alter table messages enable row level security;
 alter table personal_album_photos enable row level security;
+alter table travel_plans enable row level security;
 alter table lounge_events enable row level security;
 alter table lounge_event_attendees enable row level security;
 
@@ -218,6 +231,11 @@ create policy "Users can add own photos" on personal_album_photos for insert to 
 create policy "Users can update own photos" on personal_album_photos for update to authenticated using (auth.uid() = user_id);
 create policy "Users can delete own photos" on personal_album_photos for delete to authenticated using (auth.uid() = user_id);
 
+-- Travel Plans
+create policy "Travel plans viewable by all" on travel_plans for select to authenticated using (true);
+create policy "Users can create travel plans" on travel_plans for insert to authenticated with check (auth.uid() = user_id);
+create policy "Users can delete own travel plans" on travel_plans for delete to authenticated using (auth.uid() = user_id);
+
 -- Lounge Events
 create policy "Lounge events viewable by all" on lounge_events for select to authenticated using (true);
 create policy "Users can create events" on lounge_events for insert to authenticated with check (auth.uid() = created_by);
@@ -241,6 +259,7 @@ alter publication supabase_realtime add table discussions;
 alter publication supabase_realtime add table discussion_replies;
 alter publication supabase_realtime add table messages;
 alter publication supabase_realtime add table personal_album_photos;
+alter publication supabase_realtime add table travel_plans;
 alter publication supabase_realtime add table lounge_events;
 alter publication supabase_realtime add table lounge_event_attendees;
 alter publication supabase_realtime add table profiles;
