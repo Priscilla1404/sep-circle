@@ -85,7 +85,7 @@ export default function SchwabLounge() {
       <div className="lounge-hero">
         <div className="lounge-hero-content">
           <h1>Schwab Lounge</h1>
-          <p className="lounge-tagline">Your virtual living room. Drop in, catch up, connect.</p>
+          <p className="lounge-tagline">When missing our late nights, endless chats, and best laughs...</p>
         </div>
       </div>
 
