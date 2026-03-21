@@ -16,6 +16,7 @@ export function useSupabaseStore() {
   const [albumPhotos, setAlbumPhotos] = useState({});
   const [loungeEvents, setLoungeEvents] = useState([]);
   const [travelPlans, setTravelPlans] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [albumCounts, setAlbumCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +63,7 @@ export function useSupabaseStore() {
   // ===== LOAD ALL DATA =====
   const loadAllData = async (userId) => {
     try {
-      const [p, pc, pcComments, b, bComments, bWtr, d, dReplies, le, tp, ac] = await Promise.all([
+      const [p, pc, pcComments, b, bComments, bWtr, d, dReplies, le, tp, ac, sess] = await Promise.all([
         db.fetchProfiles(),
         db.fetchPostcards(),
         db.fetchPostcardComments(),
@@ -74,6 +75,7 @@ export function useSupabaseStore() {
         db.fetchLoungeEvents(),
         db.fetchTravelPlans(),
         db.fetchAllAlbumCounts(),
+        db.fetchSessions(),
       ]);
       setProfiles(p);
       setPostcards(pc);
@@ -86,6 +88,7 @@ export function useSupabaseStore() {
       setLoungeEvents(le);
       setTravelPlans(tp);
       setAlbumCounts(ac);
+      setSessions(sess);
 
       if (userId) {
         const convs = await db.fetchConversations(userId);
@@ -188,6 +191,16 @@ export function useSupabaseStore() {
     time: e.event_time,
     meetLink: e.meet_link,
     attendees: (e.attendees || []).map(a => a.user_id),
+  }));
+
+  const normalizedSessions = sessions.map(s => ({
+    id: s.id,
+    createdBy: s.created_by,
+    title: s.title,
+    description: s.description,
+    date: s.session_date,
+    time: s.session_time,
+    meetLink: s.meet_link,
   }));
 
   const normalizedTravelPlans = travelPlans.map(t => ({
@@ -401,6 +414,23 @@ export function useSupabaseStore() {
       refresh();
     },
 
+    addSession: async (session) => {
+      await db.addSession({
+        created_by: session.createdBy,
+        title: session.title,
+        description: session.description,
+        session_date: session.date,
+        session_time: session.time,
+        meet_link: session.meetLink,
+      });
+      refresh();
+    },
+
+    deleteSession: async (sessionId) => {
+      await db.deleteSession(sessionId);
+      refresh();
+    },
+
     addTravelPlan: async (plan) => {
       await db.addTravelPlan({
         user_id: plan.userId,
@@ -437,6 +467,7 @@ export function useSupabaseStore() {
     messages: normalizedConversations,
     personalAlbums: albumPhotos,
     loungeEvents: normalizedLoungeEvents,
+    sessions: normalizedSessions,
     travelPlans: normalizedTravelPlans,
     albumCounts,
   };

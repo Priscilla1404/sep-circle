@@ -279,6 +279,24 @@ export async function deleteAlbumPhoto(id) {
   if (error) throw error;
 }
 
+// ===== SESSIONS =====
+export async function fetchSessions() {
+  const { data, error } = await supabase.from('sessions').select('*').order('session_date');
+  if (error) { console.error('fetchSessions:', error); return []; }
+  return data || [];
+}
+
+export async function addSession(session) {
+  const { data, error } = await supabase.from('sessions').insert(session).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteSession(id) {
+  const { error } = await supabase.from('sessions').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // ===== TRAVEL PLANS =====
 export async function fetchTravelPlans() {
   const { data, error } = await supabase.from('travel_plans').select('*').order('date_from');

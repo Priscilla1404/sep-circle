@@ -1297,6 +1297,166 @@ a { color: var(--navy); text-decoration: none; }
   font-style: italic;
 }
 
+/* ===== SESSIONS ===== */
+.sessions-page { }
+
+.new-session-form {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.new-session-form input,
+.new-session-form textarea {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font);
+  width: 100%;
+}
+
+.new-session-form textarea { resize: vertical; }
+
+.sessions-list { display: flex; flex-direction: column; gap: 14px; }
+.sessions-list.past { gap: 8px; }
+
+.session-card {
+  display: flex;
+  gap: 20px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+}
+
+.session-card:hover { box-shadow: var(--shadow-lg); }
+.session-card.past { opacity: 0.55; }
+
+.session-date-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  flex-shrink: 0;
+  background: var(--navy);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 10px 8px;
+  line-height: 1;
+}
+
+.session-month {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.session-day {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 2px 0;
+}
+
+.session-weekday {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.session-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 4px;
+}
+
+.session-time {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.session-description {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.session-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.session-added-by {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.session-creator-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.session-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.session-join-btn {
+  display: inline-block;
+  background: var(--navy);
+  color: var(--white);
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.session-join-btn:hover {
+  background: var(--navy-light);
+  color: var(--white);
+}
+
+.past-sessions {
+  margin-top: 32px;
+}
+
+.past-sessions > h3 {
+  font-size: 16px;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+  .session-card { flex-direction: column; gap: 12px; }
+  .session-date-block { flex-direction: row; gap: 8px; padding: 8px 14px; }
+  .session-day { font-size: 20px; margin: 0; }
+}
+
 /* ===== MEMBERS ===== */
 .members-page { }
 

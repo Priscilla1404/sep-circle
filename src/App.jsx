@@ -14,6 +14,7 @@ import SchwabLounge from './pages/SchwabLounge';
 import Profile from './pages/Profile';
 import TravelTracker from './pages/TravelTracker';
 import Members from './pages/Members';
+import Sessions from './pages/Sessions';
 
 // Context to share store across components
 export const StoreContext = createContext(null);
@@ -53,6 +54,7 @@ function AppWithSupabase() {
             <Route path="/" element={<PostcardWall />} />
             <Route path="/books" element={<Books />} />
             <Route path="/discussions" element={<Discussions />} />
+            <Route path="/sessions" element={<Sessions />} />
             <Route path="/lounge" element={<SchwabLounge />} />
             <Route path="/nearby" element={<NearMe />} />
             <Route path="/travel" element={<TravelTracker />} />
@@ -83,6 +85,7 @@ function AppWithLocalStorage() {
             <Route path="/" element={<PostcardWall />} />
             <Route path="/books" element={<Books />} />
             <Route path="/discussions" element={<Discussions />} />
+            <Route path="/sessions" element={<Sessions />} />
             <Route path="/lounge" element={<SchwabLounge />} />
             <Route path="/nearby" element={<NearMe />} />
             <Route path="/travel" element={<TravelTracker />} />

@@ -5,6 +5,7 @@ const navItems = [
   { to: '/', label: 'Postcards', icon: '✉' },
   { to: '/books', label: 'Books', icon: '📖' },
   { to: '/discussions', label: 'Discuss', icon: '💬' },
+  { to: '/sessions', label: 'Sessions', icon: '🎓' },
   { to: '/lounge', label: 'Schwab Lounge', icon: '🛋' },
   { to: '/nearby', label: 'Near Me', icon: '📍' },
   { to: '/travel', label: 'Travel', icon: '✈' },

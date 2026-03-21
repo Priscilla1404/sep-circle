@@ -49,6 +49,7 @@ function getInitialData() {
     messages: seedMessages,
     personalAlbums: {},
     loungeEvents: seedLoungeEvents,
+    sessions: [],
     travelPlans: [],
   };
   saveData(initial);
@@ -293,6 +294,21 @@ export const store = {
     store.update(d => ({
       ...d,
       loungeEvents: [...d.loungeEvents, event],
+    }));
+  },
+
+  // Sessions
+  addSession: (session) => {
+    store.update(d => ({
+      ...d,
+      sessions: [...d.sessions, session],
+    }));
+  },
+
+  deleteSession: (sessionId) => {
+    store.update(d => ({
+      ...d,
+      sessions: d.sessions.filter(s => s.id !== sessionId),
     }));
   },
 
