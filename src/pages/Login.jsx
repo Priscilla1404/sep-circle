@@ -35,6 +35,10 @@ export default function Login() {
               onChange={e => setEmail(e.target.value)}
               required
               className="login-input"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              inputMode="email"
             />
           </label>
           <label className="login-label">
@@ -46,6 +50,7 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)}
               required
               className="login-input"
+              autoComplete="current-password"
             />
           </label>
           {error && <p className="login-error">{error}</p>}

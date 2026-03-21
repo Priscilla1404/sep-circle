@@ -2,17 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAppStore } from '../App';
 
-const navItems = [
+const mainTabs = [
   { to: '/', label: 'Postcards', icon: '✉' },
+  { to: '/lounge', label: 'Lounge', icon: '🛋' },
+  { to: '/travel', label: 'Travel', icon: '✈' },
+  { to: '/members', label: 'Members', icon: '👥' },
+];
+
+const moreTabs = [
   { to: '/books', label: 'Books', icon: '📖' },
   { to: '/discussions', label: 'Discuss', icon: '💬' },
   { to: '/sessions', label: 'Sessions', icon: '🎓' },
-  { to: '/lounge', label: 'Schwab Lounge', icon: '🛋' },
   { to: '/nearby', label: 'Near Me', icon: '📍' },
-  { to: '/travel', label: 'Travel', icon: '✈' },
-  { to: '/members', label: 'Members', icon: '👥' },
   { to: '/messages', label: 'DMs', icon: '✏' },
 ];
+
+const allTabs = [...mainTabs, ...moreTabs];
 
 function getLastSeen() {
   try {
@@ -20,7 +25,7 @@ function getLastSeen() {
   } catch { return new Date(0).toISOString(); }
 }
 
-function setLastSeen() {
+function setLastSeenNow() {
   localStorage.setItem('sep_last_seen', new Date().toISOString());
 }
 
@@ -44,21 +49,20 @@ function useNotifications(data, currentUser) {
     (data.books || []).forEach(b => {
       if (b.userId !== currentUser.id && new Date(b.date) > since) {
         const user = data.users.find(u => u.id === b.userId);
-        items.push({ type: 'book', text: `${user?.name?.split(' ')[0] || 'Someone'} recommended a book: ${b.title}`, date: b.date, link: '/books' });
+        items.push({ type: 'book', text: `${user?.name?.split(' ')[0] || 'Someone'} recommended "${b.title}"`, date: b.date, link: '/books' });
       }
     });
 
     (data.discussions || []).forEach(d => {
       if (d.userId !== currentUser.id && new Date(d.date) > since) {
         const user = data.users.find(u => u.id === d.userId);
-        items.push({ type: 'discussion', text: `${user?.name?.split(' ')[0] || 'Someone'} started a discussion: ${d.title}`, date: d.date, link: '/discussions' });
+        items.push({ type: 'discussion', text: `${user?.name?.split(' ')[0] || 'Someone'} started: ${d.title}`, date: d.date, link: '/discussions' });
       }
     });
 
     (data.sessions || []).forEach(s => {
       if (s.createdBy !== currentUser.id) {
-        const user = data.users.find(u => u.id === s.createdBy);
-        items.push({ type: 'session', text: `New session added: ${s.title}`, date: s.date, link: '/sessions' });
+        items.push({ type: 'session', text: `New session: ${s.title}`, date: s.date, link: '/sessions' });
       }
     });
 
@@ -67,7 +71,7 @@ function useNotifications(data, currentUser) {
   }, [data, currentUser]);
 
   const markSeen = () => {
-    setLastSeen();
+    setLastSeenNow();
     lastSeen.current = new Date().toISOString();
     setUnseen([]);
     setShowPanel(false);
@@ -79,18 +83,19 @@ function useNotifications(data, currentUser) {
 export default function Layout() {
   const { data, currentUser, store: s } = useAppStore();
   const { unseen, showPanel, setShowPanel, markSeen } = useNotifications(data, currentUser);
+  const [showMore, setShowMore] = useState(false);
   const panelRef = useRef(null);
+  const moreRef = useRef(null);
 
-  // Close panel when clicking outside
+  // Close panels when clicking outside
   useEffect(() => {
     const handleClick = (e) => {
-      if (panelRef.current && !panelRef.current.contains(e.target)) {
-        setShowPanel(false);
-      }
+      if (panelRef.current && !panelRef.current.contains(e.target)) setShowPanel(false);
+      if (moreRef.current && !moreRef.current.contains(e.target)) setShowMore(false);
     };
-    if (showPanel) document.addEventListener('mousedown', handleClick);
+    if (showPanel || showMore) document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [showPanel]);
+  }, [showPanel, showMore]);
 
   return (
     <div className="app-container">
@@ -100,8 +105,9 @@ export default function Layout() {
             <span className="logo-mark">SC</span>
             <span className="logo-text">SEP Circle</span>
           </NavLink>
-          <nav className="main-nav">
-            {navItems.map(item => (
+          {/* Desktop nav — all tabs */}
+          <nav className="main-nav desktop-nav">
+            {allTabs.map(item => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -114,7 +120,7 @@ export default function Layout() {
           </nav>
           <div className="header-right">
             <div className="notif-wrap" ref={panelRef}>
-              <button className="notif-bell" onClick={() => setShowPanel(!showPanel)}>
+              <button className="notif-bell" onClick={() => { setShowPanel(!showPanel); setShowMore(false); }}>
                 <span className="bell-icon">🔔</span>
                 {unseen.length > 0 && <span className="notif-badge">{unseen.length}</span>}
               </button>
@@ -152,6 +158,40 @@ export default function Layout() {
       <main className="app-main">
         <Outlet />
       </main>
+      {/* Mobile bottom nav — 4 main tabs + More */}
+      <nav className="mobile-nav">
+        {mainTabs.map(item => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `mobile-tab ${isActive ? 'active' : ''}`}
+          >
+            <span className="mobile-tab-icon">{item.icon}</span>
+            <span className="mobile-tab-label">{item.label}</span>
+          </NavLink>
+        ))}
+        <div className="mobile-more-wrap" ref={moreRef}>
+          <button className={`mobile-tab ${showMore ? 'active' : ''}`} onClick={() => { setShowMore(!showMore); setShowPanel(false); }}>
+            <span className="mobile-tab-icon">•••</span>
+            <span className="mobile-tab-label">More</span>
+          </button>
+          {showMore && (
+            <div className="mobile-more-menu">
+              {moreTabs.map(item => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className="mobile-more-item"
+                  onClick={() => setShowMore(false)}
+                >
+                  <span className="mobile-more-icon">{item.icon}</span>
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
+      </nav>
     </div>
   );
 }
