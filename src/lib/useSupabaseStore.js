@@ -52,9 +52,11 @@ export function useSupabaseStore() {
         profile = await db.fetchProfile(userId);
       }
     }
+    if (profile) {
+      await loadAllData(userId);
+    }
     setCurrentUser(profile);
     setLoading(false);
-    if (profile) loadAllData(userId);
   };
 
   // ===== LOAD ALL DATA =====
