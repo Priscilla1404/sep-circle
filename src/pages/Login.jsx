@@ -33,6 +33,7 @@ export default function Login() {
               placeholder="yourname@alumni.gsb.stanford.edu"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              onTouchStart={e => e.target.focus()}
               required
               className="login-input"
               autoComplete="email"
@@ -48,6 +49,7 @@ export default function Login() {
               placeholder="Enter your password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              onTouchStart={e => e.target.focus()}
               required
               className="login-input"
               autoComplete="current-password"
