@@ -2,7 +2,16 @@ import { useState, useRef } from 'react';
 import { useAppStore } from '../App';
 import { fileToDataUrl } from '../lib/imageUtils';
 
-function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDelete }) {
+function Lightbox({ src, onClose }) {
+  return (
+    <div className="lightbox-overlay" onClick={onClose}>
+      <button className="lightbox-close" onClick={onClose}>×</button>
+      <img src={src} alt="" className="lightbox-image" onClick={e => e.stopPropagation()} />
+    </div>
+  );
+}
+
+function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDelete, onOpenPhoto }) {
   const [flipped, setFlipped] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [editingCaption, setEditingCaption] = useState(false);
@@ -32,70 +41,80 @@ function PostcardCard({ postcard, users, currentUser, onComment, onUpdate, onDel
 
   return (
     <div className={`postcard ${flipped ? 'flipped' : ''}`}>
-      <div className="postcard-inner" onClick={() => !editingCaption && setFlipped(!flipped)}>
-        {/* Front */}
-        <div className="postcard-front">
-          <div className="postcard-pin" />
-          <img src={postcard.imageUrl} alt="" className="postcard-image" />
-          <div className="postcard-info">
-            {editingCaption ? (
-              <div className="inline-edit" onClick={e => e.stopPropagation()}>
-                <input type="text" value={editCaption} onChange={e => setEditCaption(e.target.value)} maxLength={150} className="inline-edit-input" autoFocus />
-                <button onClick={handleSaveCaption} className="inline-edit-save">Save</button>
-                <button onClick={(e) => { e.stopPropagation(); setEditingCaption(false); }} className="inline-edit-cancel">Cancel</button>
-              </div>
-            ) : (
-              postcard.caption && <p className="postcard-caption">{postcard.caption}</p>
-            )}
-            <div className="postcard-meta">
-              <img src={author?.avatar} alt="" className="postcard-author-avatar" />
-              <span className="postcard-author-name">{author?.name?.split(' ')[0]}</span>
-              <span className="postcard-stamp">{postcard.city} — {new Date(postcard.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+      {/* Front */}
+      <div className="postcard-front">
+        <div className="postcard-pin" />
+        <img
+          src={postcard.imageUrl}
+          alt=""
+          className="postcard-image"
+          onClick={() => onOpenPhoto(postcard.imageUrl)}
+          title="Click to enlarge"
+        />
+        <div className="postcard-info">
+          {editingCaption ? (
+            <div className="inline-edit">
+              <input type="text" value={editCaption} onChange={e => setEditCaption(e.target.value)} maxLength={150} className="inline-edit-input" autoFocus />
+              <button onClick={handleSaveCaption} className="inline-edit-save">Save</button>
+              <button onClick={() => setEditingCaption(false)} className="inline-edit-cancel">Cancel</button>
             </div>
-          </div>
-          {isMine && !editingCaption && (
-            <div className="owner-actions" onClick={e => e.stopPropagation()}>
-              <button className="owner-btn" onClick={() => setEditingCaption(true)}>Edit</button>
-              <button className="owner-btn danger" onClick={() => { if (confirm('Delete this postcard?')) onDelete(postcard.id); }}>Delete</button>
-            </div>
+          ) : (
+            postcard.caption && <p className="postcard-caption">{postcard.caption}</p>
           )}
-          <div className="flip-hint">{postcard.comments.length > 0 ? `${postcard.comments.length} comment${postcard.comments.length !== 1 ? 's' : ''} — tap to read` : 'Tap to flip'}</div>
-        </div>
-
-        {/* Back */}
-        <div className="postcard-back" onClick={e => e.stopPropagation()}>
-          <div className="postcard-back-header">
-            <button className="flip-back-btn" onClick={() => setFlipped(false)}>← Back to photo</button>
-            <span className="postcard-stamp-back">{postcard.city} — {new Date(postcard.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <div className="postcard-meta">
+            <img src={author?.avatar} alt="" className="postcard-author-avatar" />
+            <span className="postcard-author-name">{author?.name?.split(' ')[0]}</span>
+            <span className="postcard-stamp">{postcard.city} — {new Date(postcard.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
           </div>
-          <div className="postcard-comments">
-            {postcard.comments.length === 0 && (
-              <p className="no-comments">No messages yet. Be the first to write on this postcard.</p>
+          <div className="postcard-buttons">
+            <button className="postcard-btn" onClick={() => setFlipped(true)}>
+              {postcard.comments.length > 0
+                ? `${postcard.comments.length} comment${postcard.comments.length !== 1 ? 's' : ''}`
+                : 'Comment'}
+            </button>
+            {isMine && !editingCaption && (
+              <>
+                <button className="postcard-btn" onClick={() => setEditingCaption(true)}>Edit</button>
+                <button className="postcard-btn danger" onClick={() => { if (confirm('Delete this postcard?')) onDelete(postcard.id); }}>Delete</button>
+              </>
             )}
-            {postcard.comments.map(comment => {
-              const commenter = users.find(u => u.id === comment.userId);
-              return (
-                <div key={comment.id} className="postcard-comment">
-                  <img src={commenter?.avatar} alt="" className="comment-avatar" />
-                  <div>
-                    <span className="comment-author">{commenter?.name?.split(' ')[0]}</span>
-                    <p className="comment-text">{comment.text}</p>
-                  </div>
-                </div>
-              );
-            })}
           </div>
-          <form className="comment-form" onSubmit={handleSubmitComment}>
-            <input
-              type="text"
-              placeholder="Write on this postcard..."
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              maxLength={150}
-            />
-            <button type="submit">Send</button>
-          </form>
         </div>
+      </div>
+
+      {/* Back */}
+      <div className="postcard-back">
+        <div className="postcard-back-header">
+          <button className="flip-back-btn" onClick={() => setFlipped(false)}>← Back to photo</button>
+          <span className="postcard-stamp-back">{postcard.city} — {new Date(postcard.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+        </div>
+        <div className="postcard-comments">
+          {postcard.comments.length === 0 && (
+            <p className="no-comments">No messages yet. Be the first to write on this postcard.</p>
+          )}
+          {postcard.comments.map(comment => {
+            const commenter = users.find(u => u.id === comment.userId);
+            return (
+              <div key={comment.id} className="postcard-comment">
+                <img src={commenter?.avatar} alt="" className="comment-avatar" />
+                <div>
+                  <span className="comment-author">{commenter?.name?.split(' ')[0]}</span>
+                  <p className="comment-text">{comment.text}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <form className="comment-form" onSubmit={handleSubmitComment}>
+          <input
+            type="text"
+            placeholder="Write on this postcard..."
+            value={newComment}
+            onChange={e => setNewComment(e.target.value)}
+            maxLength={150}
+          />
+          <button type="submit">Send</button>
+        </form>
       </div>
     </div>
   );
@@ -107,6 +126,7 @@ export default function PostcardWall() {
   const [newCaption, setNewCaption] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
+  const [lightboxSrc, setLightboxSrc] = useState(null);
   const fileInputRef = useRef(null);
 
   const sorted = [...data.postcards].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -141,6 +161,8 @@ export default function PostcardWall() {
 
   return (
     <div className="postcard-wall-page">
+      {lightboxSrc && <Lightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />}
+
       <div className="page-header">
         <div>
           <h1>The Postcard Wall</h1>
@@ -190,6 +212,7 @@ export default function PostcardWall() {
             onComment={s.addPostcardComment}
             onUpdate={s.updatePostcard}
             onDelete={s.deletePostcard}
+            onOpenPhoto={setLightboxSrc}
           />
         ))}
       </div>
